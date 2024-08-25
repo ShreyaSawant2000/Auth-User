@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+      *{
+        font-family: 'Inter';
+      }
+      .bg-login{
+        background-color: beige !important;
+      }
+    </style>
+</head>
+
+<body class="bg-beige-100 min-h-screen bg-login">
+    <!-- Header -->
+    <header class="text-beige-600 body-font">
+        <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+            <a class="flex title-font font-medium items-center text-beige-900 mb-4 md:mb-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
+                    class="w-10 h-10 text-white p-2 bg-blue-500 rounded-full" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.68 0-3 .72-3 2.22M12 12.78c0 1.5-1.32 2.22-3 2.22M15 11l3 3m0 0l-3 3m3-3H9" />
+                </svg>
+                <span class="ml-3 text-xl">Auth System</span>
+            </a>
+
+        </div>
+    </header>
+
+    <!-- Login Form -->
+    <div class="flex items-center justify-center mt-16">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96">
+            <h2 class="text-2xl font-bold mb-6">Login</h2>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="username" class="block text-beige-700">Username</label>
+                    <input type="text" id="username"
+                        class="mt-1 block w-full border-beige-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-beige-700">Password</label>
+                    <input type="password" id="password"
+                        class="mt-1 block w-full border-beige-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        required>
+                </div>
+                <p id="errorMessage" class="text-red-500 mb-4 hidden"></p>
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.token);
+                    window.location.href = '/dashboard.html';
+                } else {
+                    document.getElementById('errorMessage').textContent = 'Invalid credentials';
+                    document.getElementById('errorMessage').classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen relative">
+  <!-- Fixed Navigation Bar -->
+  <nav class="bg-white w-full p-4 shadow-md flex justify-between items-center fixed top-0 left-0 z-50">
+    <h1 class="text-2xl font-bold text-gray-800" id="roleDashboard">Dashboard</h1>
+    <button onclick="logout()" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">Logout</button>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="bg-white p-8 rounded-lg shadow-md w-96 mt-16"> <!-- Added margin-top to account for the fixed nav -->
+    <div id="userInfo" class="mb-4">
+      <!-- User info will be populated here -->
+    </div>
+    <button onclick="window.location.href = '/upload.html'" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Upload File</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:5000/api/files/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const user = await response.json();
+          const roleDashboard = document.getElementById('roleDashboard');
+          const userInfo = document.getElementById('userInfo');
+
+          let roleName = '';
+          switch (user.roleId) {
+            case 1:
+              roleName = 'Super Admin';
+              break;
+            case 2:
+              roleName = 'Admin';
+              break;
+            case 3:
+              roleName = 'Support Admin';
+              break;
+            case 4:
+              roleName = 'User';
+              break;
+            case 5:
+              roleName = 'Customer';
+              break;
+            default:
+              roleName = 'User';
+          }
+
+          roleDashboard.textContent = `${roleName} Dashboard`;
+          userInfo.innerHTML = `
+            <p class="text-gray-700">Username: ${user.username}</p>
+            <p class="text-gray-700">Role: ${roleName}</p>
+          `;
+        } else {
+          window.location.href = '/login.html';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>

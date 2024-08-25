@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload File</title>
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-beige-100 flex flex-col items-center justify-center min-h-screen relative">
+  <!-- Fixed Navigation Bar -->
+  <nav class="bg-white w-full p-4 shadow-md flex justify-between items-center fixed top-0 left-0 z-50">
+    <h1 class="text-2xl font-bold text-beige-800">Dashboard</h1>
+    <button onclick="logout()" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">Logout</button>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="bg-white p-8 rounded-lg shadow-md w-96 mt-16"> <!-- Added margin-top to account for the fixed nav -->
+    <h2 class="text-2xl font-bold mb-6">Upload File</h2>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" class="block w-full mb-4 text-beige-700" required>
+      <p id="successMessage" class="text-green-500 mb-4 hidden">File uploaded successfully</p>
+      <p id="uploadErrorMessage" class="text-red-500 mb-4 hidden">Only Admins can upload file</p>
+      <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Upload</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const file = document.getElementById('fileInput').files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:5000/api/files/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        if (response.ok) {
+          document.getElementById('successMessage').classList.remove('hidden');
+          document.getElementById('uploadErrorMessage').classList.add('hidden');
+        } else {
+          document.getElementById('uploadErrorMessage').classList.remove('hidden');
+          document.getElementById('successMessage').classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    }
+  </script>
+</body>
+</html>
